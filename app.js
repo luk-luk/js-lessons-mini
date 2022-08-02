@@ -21,4 +21,7 @@ function closeModal() {
     modal.classList.remove('open')
 }
 
-console.log(technologies)
+let html = ''
+for (let i = 0; i < technologies.length) {
+
+}
