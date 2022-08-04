@@ -1,11 +1,15 @@
 const modal = document.querySelector('#modal')
 const content = document.querySelector('#content')
 const backdrop = document.querySelector('#backdrop')
+const progress = document.querySelector('#progress')
 
 content.addEventListener('click', openCard)
 backdrop.addEventListener('click', closeModal)
 
-const technologies = [{
+const APP_TITLE = document.title
+
+const technologies = [
+    {
         title: 'HTML',
         description: 'HTML text',
         type: 'html',
@@ -21,13 +25,13 @@ const technologies = [{
         title: 'JavaScript',
         description: 'JavaScript text',
         type: 'js',
-        done: false
+        done: true
     },
     {
         title: 'Git',
         description: 'Git text',
         type: 'git',
-        done: false
+        done: true
     },
     {
         title: 'REACT',
@@ -37,17 +41,31 @@ const technologies = [{
     }
 ]
 
+function openCard(event) {
+    const data = event.target.dataset
+    const tech = technologies.find(t => t.type === data.type)
+    if(!tech) return
 
+    openModal('', tech.title)
+    
+}
 
-function openCard() {
+function openModal(html, title = APP_TITLE){
+    document.title = `${title} | ${APP_TITLE}`
     modal.classList.add('open')
 }
 
 function closeModal() {
+    document.title = APP_TITLE
     modal.classList.remove('open')
 }
 
 function init() {
+    renderCards()
+    renderProgress()
+}
+
+function renderCards() {
     if (technologies.length === 0) {
         content.innerHTML = '<p class="empty"><h3>Технологий пока нет. Добавьте первую!</h3></p>'
     } else {
@@ -58,8 +76,41 @@ function init() {
         } 
         content.innerHTML = html
 
-        // content.innerHTML = technologies.map(toCard).join('')
+        // content.innerHTML = technologies.map(toCard).join('') - это упрощенная запись цикла for для вывода из массива данных и их преобразования в html см.выше
     }
+}
+
+function renderProgress() {
+    const percent = computeProgressPercent()
+
+    let background
+
+    if (percent <= 30) {
+        background = '#e75a5a'
+    } else if (percent > 30 && percent < 70) {
+        background = '#f99415e'
+    } else {
+        background = '#73ba3c'
+    }
+
+    //background-color -> progress.style.backgroundColor
+    //margin-top -> progress.style.marginTop
+
+    progress.style.background = background
+    progress.style.width = percent + '%'
+    progress.textContent = percent ? percent + '%' : ''
+}
+
+function computeProgressPercent() {
+    if(technologies.length === 0) {
+        return 0
+    }
+
+    let doneCount = 0
+    for(let i = 0; i < technologies.length; i++) {
+        if(technologies[i].done) doneCount++             
+    }
+    return Math.round((100 * doneCount) / technologies.length)
 }
 
 function toCard(tech) {
@@ -69,12 +120,12 @@ function toCard(tech) {
     //     doneClass = 'done'
     // }
 
-    const doneClass = tech.done ? 'done' : ''
+    const doneClass = tech.done ? 'done' : '' // это упрощенная запись условия см.выше
 
 
     return ` 
-    <div class = "card ${doneClass}">
-        <h3>${tech.title}</h3>
+    <div class = "card ${doneClass}" data-type = "${tech.type}">
+        <h3 data-type = "${tech.type}">${tech.title}</h3>
     </div>
     `
 }
