@@ -5,6 +5,7 @@ const progress = document.querySelector('#progress')
 
 content.addEventListener('click', openCard)
 backdrop.addEventListener('click', closeModal)
+modal.addEventListener('change', toggleTech)
 
 const APP_TITLE = document.title
 
@@ -42,16 +43,40 @@ const technologies = [
 ]
 
 function openCard(event) {
-    const data = event.target.dataset
-    const tech = technologies.find(t => t.type === data.type)
-    if(!tech) return
+    const data = event.target.dataset //event на клик выводит разные свойства объекта по которому кликнули, здесь находит data
+    const tech = technologies.find(t => t.type === data.type) //на клик проходимся по объекту и находим type
+    if(!tech) return // если объект по которому кликнули не имеет type, то выходим и ничего не происходит - это места между карточек
 
-    openModal('', tech.title)
+    openModal(toModal (tech), tech.title) //вызываем модальное окно и в скобках передаем заготовленный html и заголовок
     
+}
+
+function toModal (tech) {
+    const checked = tech.done ? 'checked' : ''
+    return`
+    <h2>${tech.title}</h2>   
+      <p>
+        ${tech.description}        
+      </p>
+      <hr />
+      <div>
+        <input type="checkbox" id="done" ${checked} data-type = "${tech.type}"/>
+        <label for="done">Выучил</label>
+      </div>    
+    `
+}
+
+function toggleTech(event) {
+    const type = event.target.dataset.type
+    const tech = technologies.find(t => t.type === type)
+    tech.done = event.target.checked
+
+    init()
 }
 
 function openModal(html, title = APP_TITLE){
     document.title = `${title} | ${APP_TITLE}`
+    modal.innerHTML = html
     modal.classList.add('open')
 }
 
@@ -72,7 +97,7 @@ function renderCards() {
         let html = ''
         for (let i = 0; i < technologies.length; i++) {
             const tech = technologies[i]
-            html += toCard(tech)
+            html += toCard(tech) //tech - это
         } 
         content.innerHTML = html
 
@@ -88,7 +113,7 @@ function renderProgress() {
     if (percent <= 30) {
         background = '#e75a5a'
     } else if (percent > 30 && percent < 70) {
-        background = '#f99415e'
+        background = '#f99415'
     } else {
         background = '#73ba3c'
     }
